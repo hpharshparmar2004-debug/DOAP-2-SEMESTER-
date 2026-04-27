@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>RGCSM Semester II Examination</title>
+<style>
+body{
+margin:0;
+font-family:'Segoe UI',sans-serif;
+background:linear-gradient(135deg,#0f172a,#1e3a8a);
+color:#fff;
+}
+
+/* CONTAINER */
+.container{
+max-width:1000px;
+margin:auto;
+padding:20px;
+}
+
+/* LOGIN UI */
+.login{
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.login-card{
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(12px);
+padding:40px;
+border-radius:15px;
+width:320px;
+box-shadow:0 0 25px rgba(0,0,0,0.5);
+text-align:center;
+}
+
+.login-card h2{
+margin-bottom:20px;
+}
+
+input{
+width:100%;
+padding:12px;
+margin:10px 0;
+border-radius:8px;
+border:none;
+outline:none;
+background:#0f172a;
+color:#fff;
+}
+
+/* BUTTON */
+button{
+padding:10px 18px;
+border:none;
+border-radius:8px;
+background:#2563eb;
+color:#fff;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+background:#1d4ed8;
+transform:scale(1.05);
+}
+
+/* EXAM UI */
+.exam{
+display:none;
+}
+
+/* HEADER BAR */
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:rgba(0,0,0,0.4);
+padding:15px;
+border-radius:10px;
+margin-bottom:20px;
+}
+
+.timer{
+font-size:18px;
+font-weight:bold;
+color:#facc15;
+}
+
+/* QUESTION BOX */
+.question-box{
+background:rgba(255,255,255,0.08);
+padding:20px;
+border-radius:12px;
+margin-bottom:15px;
+}
+
+.question-box h3{
+margin-bottom:15px;
+}
+
+/* OPTIONS */
+.option{
+background:#0f172a;
+padding:10px;
+margin:8px 0;
+border-radius:8px;
+cursor:pointer;
+transition:0.2s;
+}
+
+.option:hover{
+background:#1e40af;
+}
+
+/* NAV BUTTONS */
+.nav{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+margin-top:15px;
+}
+
+.nav div{
+width:35px;
+height:35px;
+margin:4px;
+border-radius:50%;
+background:#ef4444;
+text-align:center;
+line-height:35px;
+font-size:13px;
+cursor:pointer;
+transition:0.2s;
+}
+
+.nav div:hover{
+transform:scale(1.1);
+}
+
+.nav .done{
+background:#22c55e;
+}
+
+/* ACTION BUTTONS */
+.actions{
+text-align:center;
+margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<div class="login" id="login">
+<div class="login-card">
+<h2>RGCSM Exam Portal</h2>
+<input id="user" placeholder="Username (rgcsm001)">
+<input type="password" id="pass" placeholder="Password (001)">
+<button onclick="login()">Login</button>
+<p id="msg"></p>
+</div>
+</div>
+
+<div class="exam" id="exam">
+
+<div class="header">
+<div>RGCSM Semester II Examination</div>
+<div id="username"></div>
+<div class="timer">⏱ <span id="time">60:00</span></div>
+</div>
+
+<div class="question-box" id="questionBox"></div>
+
+<div class="actions">
+<button onclick="prev()">Previous</button>
+<button onclick="saveNext()">Save & Next</button>
+<button onclick="submitExam()">Submit</button>
+</div>
+
+<div class="nav" id="nav"></div>
+
+</div>
+
+</div>
+
+<script>
+
+let qIndex=0;
+let answers=new Array(100).fill(null);
+let timer=3600;
+
+function login(){
+let u = document.getElementById("user").value.trim();
+let p = document.getElementById("pass").value.trim();
+
+if(/^rgcsm\d{3}$/.test(u) && u.slice(5) === p){
+document.getElementById("login").style.display = "none";
+document.getElementById("exam").style.display = "block";
+document.getElementById("username").innerText = "User: " + u;
+start();
+}else{
+document.getElementById("msg").innerText = "Invalid Login";
+}
+}
+
+function start(){
+showQ();
+setInterval(()=>{
+timer--;
+let m=Math.floor(timer/60),s=timer%60;
+time.innerText=`${m}:${s<10?"0":""}${s}`;
+if(timer<=0)submitExam();
+},1000);
+
+for(let i=0;i<100;i++){
+let d=document.createElement("div");
+d.innerText=i+1;
+d.onclick=()=>{qIndex=i;showQ()};
+nav.appendChild(d);
+}
+}
+
+function showQ(){
+let q=questions[qIndex];
+let html=`<h3>Q${qIndex+1}. ${q.q}</h3>`;
+q.o.forEach((opt,i)=>{
+html+=`<p><input type="radio" name="opt" value="${i}" ${answers[qIndex]==i?"checked":""}> ${opt}</p>`;
+});
+questionBox.innerHTML=html;
+}
+
+function saveNext(){
+document.querySelectorAll("input[name=opt]").forEach(o=>{
+if(o.checked)answers[qIndex]=+o.value;
+});
+updateNav();
+if(qIndex<99)qIndex++;
+showQ();
+}
+
+function prev(){if(qIndex>0)qIndex--;showQ();}
+
+function updateNav(){
+[...nav.children].forEach((d,i)=>{
+if(answers[i]!=null)d.classList.add("done");
+});
+}
+
+function submitExam(){
+alert("Exam Submitted Successfully");
+document.body.innerHTML="<h2 style='text-align:center'>Exam Submitted</h2>";
+}
+
+const questions = [
+
+/* ===== PHOTOSHOP (1–25) ===== */
+
+{q:"While editing a portrait photo in Photoshop, you want to adjust brightness and contrast without permanently changing the original image. Which approach should you use?",o:["Use Adjustment Layers for non-destructive editing","Use Eraser Tool to remove dark areas","Flatten the image first","Convert to grayscale mode"]},
+
+{q:"You need to remove a blemish from a face and blend it naturally with surrounding skin tones. Which tool is most appropriate?",o:["Healing Brush Tool for blending texture","Text Tool for overlay","Zoom Tool for viewing","Gradient Tool for shading"]},
+
+{q:"A designer wants to isolate a subject based on color similarity quickly. Which selection tool should be used?",o:["Magic Wand Tool for color-based selection","Lasso Tool for manual selection","Crop Tool","Move Tool"]},
+
+{q:"You are creating a soft transition between two colors in a background. Which feature is best suited?",o:["Gradient Tool for smooth blending","Brush Tool","Eraser Tool","Clone Stamp Tool"]},
+
+{q:"A user wants to scale, rotate, or distort an image freely. Which shortcut or command should be used?",o:["Free Transform (Ctrl+T)","Ctrl+S","Ctrl+Z","Ctrl+P"]},
+
+{q:"You want to hide part of an image layer without deleting it permanently. What should you use?",o:["Layer Mask for non-destructive hiding","Eraser Tool","Crop Tool","Delete Layer"]},
+
+{q:"A photographer wants to lighten only specific areas of an image. Which tool should be used?",o:["Dodge Tool to lighten regions","Burn Tool","Blur Tool","Fill Tool"]},
+
+{q:"You need to darken highlights in an image selectively. Which tool is correct?",o:["Burn Tool for darkening","Dodge Tool","Gradient Tool","Move Tool"]},
+
+{q:"A designer wants to create editable vector paths. Which tool should be used?",o:["Pen Tool for path creation","Brush Tool","Clone Tool","Crop Tool"]},
+
+{q:"You are preparing an image for high-quality printing. Which color mode should be used?",o:["CMYK for printing","RGB","Grayscale","Bitmap"]},
+
+{q:"To improve image sharpness and remove blur, which filter may be used?",o:["Sharpen Filter","Gaussian Blur","Noise","Distort"]},
+
+{q:"A user wants to apply effects that can be modified later. What should they use?",o:["Smart Objects for flexibility","Flatten image","Rasterize layer","Delete layer"]},
+
+{q:"You need to analyze tonal distribution in an image. Which panel is useful?",o:["Histogram panel","Layers panel","Brush panel","Tool panel"]},
+
+{q:"To smoothly blur an image background, which filter is used?",o:["Gaussian Blur","Sharpen","Pixelate","Noise"]},
+
+{q:"A designer wants to copy one part of an image to another area seamlessly. Which tool is ideal?",o:["Clone Stamp Tool","Move Tool","Crop Tool","Text Tool"]},
+
+{q:"You want to select an irregular object manually. Which tool is best?",o:["Lasso Tool","Magic Wand","Rectangular Marquee","Zoom Tool"]},
+
+{q:"To adjust transparency of a layer, which property is modified?",o:["Opacity","Fill","Resolution","Hue"]},
+
+{q:"A user wants to crop an image to a specific size. Which tool is used?",o:["Crop Tool","Brush Tool","Move Tool","Zoom Tool"]},
+
+{q:"Which feature allows applying shadows, glows, and strokes to layers?",o:["Layer Styles","Filters","Brushes","Paths"]},
+
+{q:"You want to fix red-eye in a photo. Which tool helps?",o:["Red Eye Tool","Brush Tool","Clone Tool","Crop Tool"]},
+
+{q:"To change image resolution, which unit is used?",o:["Pixels per inch (PPI)","Meters","Inches","Hertz"]},
+
+{q:"Which tool automatically selects objects by detecting edges?",o:["Quick Selection Tool","Lasso Tool","Brush Tool","Move Tool"]},
+
+{q:"You need to combine multiple layers into one. What action is used?",o:["Merge Layers","Duplicate","Mask","Lock"]},
+
+{q:"A designer wants to apply color correction without affecting original pixels. What should be used?",o:["Adjustment Layers","Eraser","Brush","Crop"]},
+
+{q:"Which tool helps smooth edges of a selection?",o:["Feather option","Crop Tool","Move Tool","Fill Tool"]},
+
+/* ===== TALLY (26–50) ===== */
+
+{q:"A business transfers money from bank to cash account. Which voucher is appropriate?",o:["Contra Voucher for internal transfer","Sales Voucher","Purchase Voucher","Journal Voucher"]},
+
+{q:"A company wants to track department-wise expenses. Which feature is used?",o:["Cost Centers for tracking","Inventory","Payroll","GST"]},
+
+{q:"Which key is used to open features in Tally?",o:["F11 for features","F12","F5","F8"]},
+
+{q:"Which voucher is used to record sales transactions?",o:["F8 Sales Voucher","F5","F6","F7"]},
+
+{q:"To record purchases, which voucher is used?",o:["F9 Purchase Voucher","F8","F5","F6"]},
+
+{q:"A business wants to verify accounts accuracy. Which report is used?",o:["Trial Balance","Stock Report","Ledger","GST Report"]},
+
+{q:"Which report shows assets and liabilities?",o:["Balance Sheet","Trial Balance","Stock Summary","Ledger"]},
+
+{q:"A company wants to check pending customer payments. Which report helps?",o:["Outstanding Receivables","Balance Sheet","Trial Balance","Stock"]},
+
+{q:"Which feature helps recover lost data?",o:["Restore option","Delete","Edit","Save"]},
+
+{q:"Which feature is used to save data backup?",o:["Backup option","Delete","Edit","Print"]},
+
+{q:"A user wants to modify company details. What option is used?",o:["Alter Company","Delete Company","Create Company","Exit"]},
+
+{q:"Which voucher is used for receiving cash?",o:["F6 Receipt Voucher","F5","F7","F8"]},
+
+{q:"Which voucher records payments?",o:["F5 Payment Voucher","F6","F7","F8"]},
+
+{q:"Journal entries are recorded using?",o:["F7 Journal Voucher","F6","F5","F8"]},
+
+{q:"Which feature is used to apply GST rates?",o:["Ledger creation","Stock only","Voucher only","Group"]},
+
+{q:"Inventory refers to?",o:["Stock items","Cash","Bank","Ledger"]},
+
+{q:"Debit side represents?",o:["Left side","Right side","Both","None"]},
+
+{q:"Credit side represents?",o:["Right side","Left side","Both","None"]},
+
+{q:"Which menu is main entry point?",o:["Gateway of Tally","Ledger","Report","Exit"]},
+
+{q:"Which report shows stock details?",o:["Stock Summary","Balance Sheet","Trial Balance","Ledger"]},
+
+{q:"Which feature matches bank statement?",o:["Bank Reconciliation","Ledger","Trial","Stock"]},
+
+{q:"A company tracks costs separately. What is used?",o:["Cost Centers","Ledger","Stock","Voucher"]},
+
+{q:"Which option groups accounts?",o:["Group","Ledger","Voucher","Stock"]},
+
+{q:"Which report shows pending dues?",o:["Outstanding Report","Stock","Ledger","Trial"]},
+
+{q:"Which option helps change configuration?",o:["F12 Configuration","F11","F5","F6"]},
+
+/* ===== CORELDRAW (51–75) ===== */
+
+{q:"A designer creates logos using mathematical curves. Which software type is CorelDRAW?",o:["Vector-based software","Raster-based","3D","Audio"]},
+
+{q:"To draw smooth curves, which tool is used?",o:["Bezier Tool","Rectangle Tool","Text Tool","Zoom Tool"]},
+
+{q:"To select objects, which tool is used?",o:["Pick Tool","Shape Tool","Fill Tool","Zoom Tool"]},
+
+{q:"To edit nodes of shapes, which tool is used?",o:["Shape Tool","Pick Tool","Text Tool","Fill Tool"]},
+
+{q:"To merge multiple shapes into one, which command is used?",o:["Weld","Trim","Zoom","Fill"]},
+
+{q:"To cut one object from another, which tool is used?",o:["Trim","Weld","Zoom","Fill"]},
+
+{q:"To apply color inside shapes, which tool is used?",o:["Fill Tool","Outline Tool","Zoom Tool","Crop Tool"]},
+
+{q:"To adjust object border thickness, which tool is used?",o:["Outline Pen","Fill Tool","Text Tool","Zoom"]},
+
+{q:"To insert text, which tool is used?",o:["Text Tool","Shape Tool","Pick Tool","Zoom Tool"]},
+
+{q:"To zoom into artwork, which tool is used?",o:["Zoom Tool","Pick Tool","Shape Tool","Fill Tool"]},
+
+{q:"To arrange objects front/back, which menu is used?",o:["Arrange Menu","File Menu","Edit Menu","View Menu"]},
+
+{q:"To group objects, which option is used?",o:["Group","Ungroup","Trim","Weld"]},
+
+{q:"To separate grouped objects, which command is used?",o:["Ungroup","Group","Trim","Weld"]},
+
+{q:"To insert image into shape, which feature is used?",o:["PowerClip","Blend","Contour","Zoom"]},
+
+{q:"To create shadow effect, which tool is used?",o:["Drop Shadow","Fill Tool","Crop Tool","Zoom Tool"]},
+
+{q:"To blend two shapes, which tool is used?",o:["Blend Tool","Crop Tool","Zoom Tool","Fill Tool"]},
+
+{q:"To create outline effect, which tool is used?",o:["Contour Tool","Blend Tool","Fill Tool","Crop Tool"]},
+
+{q:"Vector graphics are based on?",o:["Mathematical formulas","Pixels","Text","None"]},
+
+{q:"Bitmap images are based on?",o:["Pixels","Vectors","Text","Math"]},
+
+{q:"To import files, which option is used?",o:["Import","Export","Save","Print"]},
+
+{q:"To export files, which option is used?",o:["Export","Import","Save","Edit"]},
+
+{q:"To adjust perspective, which tool is used?",o:["Perspective Tool","Zoom Tool","Fill Tool","Crop Tool"]},
+
+{q:"To edit shape nodes precisely, which feature is used?",o:["Node editing","Grouping","Zoom","Fill"]},
+
+{q:"To combine effects interactively, which tool is used?",o:["Interactive Fill","Zoom Tool","Crop Tool","Move Tool"]},
+
+{q:"Layers help in?",o:["Object stacking","Text editing","Fill","Zoom"]},
+
+/* ===== PAGEMAKER (76–100) ===== */
+
+{q:"PageMaker is mainly used for?",o:["Desktop publishing","Coding","Gaming","Editing audio"]},
+
+{q:"To apply same design on all pages, which feature is used?",o:["Master Page","Pasteboard","Zoom","Text Tool"]},
+
+{q:"Pasteboard refers to?",o:["Area outside page","Page area","Text area","Image area"]},
+
+{q:"To edit long text separately, which feature is used?",o:["Story Editor","Zoom Tool","Hand Tool","Fill Tool"]},
+
+{q:"To insert text, which tool is used?",o:["Text Tool","Zoom Tool","Fill Tool","Crop Tool"]},
+
+{q:"To insert image, which command is used?",o:["Place command","Delete","Edit","Zoom"]},
+
+{q:"To connect text frames, which feature is used?",o:["Text linking","Grouping","Cropping","Aligning"]},
+
+{q:"To manage columns, which feature is used?",o:["Column Guide","Fill Tool","Zoom Tool","Crop Tool"]},
+
+{q:"Margins define?",o:["Page boundaries","Text color","Font size","Alignment"]},
+
+{q:"Ruler guide is used for?",o:["Alignment","Color","Font","Size"]},
+
+{q:"To print document, which option is used?",o:["Print","Export","Save","Edit"]},
+
+{q:"To save document as PDF, which option is used?",o:["Export PDF","Print","Edit","Delete"]},
+
+{q:"To zoom document, which tool is used?",o:["Zoom Tool","Hand Tool","Fill Tool","Crop Tool"]},
+
+{q:"To move page view, which tool is used?",o:["Hand Tool","Zoom Tool","Fill Tool","Crop Tool"]},
+
+{q:"Layers help in?",o:["Managing elements","Text editing","Zooming","Printing"]},
+
+{q:"Paragraph styles help in?",o:["Consistent formatting","Color","Size","Alignment"]},
+
+{q:"Character styles help in?",o:["Font formatting","Layout","Image","Zoom"]},
+
+{q:"Leading controls?",o:["Line spacing","Letter spacing","Color","Font"]},
+
+{q:"Kerning controls?",o:["Space between letters","Lines","Words","Pages"]},
+
+{q:"Tracking controls?",o:["Overall text spacing","Line spacing","Color","Size"]},
+
+{q:"Justify means?",o:["Align text evenly","Left align","Right align","Center"]},
+
+{q:"Indent controls?",o:["Text position shift","Color","Size","Font"]},
+
+{q:"Align left means?",o:["Text aligned left","Right","Center","None"]},
+
+{q:"Align right means?",o:["Text aligned right","Left","Center","None"]},
+
+{q:"Center align means?",o:["Text centered","Left","Right","None"]}
+
+];
+</script>
+</body>
+</html>
